@@ -7,8 +7,6 @@
 
 #define LED_PIN 2
 #define LED_WIFI 4
-
-
 void TaskBlinkLED(void *pvParameters) {
   pinMode(LED_PIN, OUTPUT);
   while (1) {
