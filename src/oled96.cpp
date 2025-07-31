@@ -2,6 +2,7 @@
 #include "../include/Sensor/dht11.h"
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+SemaphoreHandle_t xMutex = xSemaphoreCreateMutex();
 
 /**INIT OLEd */
 void initOled(){
@@ -16,19 +17,26 @@ void initOled(){
 
 /** Display Data */
 void displayTemperature() {
-    display.clearDisplay();                
+    if(xSemaphoreTake(xMutex, portMAX_DELAY)) {
+        float temp = temperature;
+        float hum = humidity;
 
-    display.setCursor(0, 0);
-    display.print(F("Nhiet do: "));
-    display.print(temperature);
-    display.println(" C");
+        xSemaphoreGive(xMutex);
+        
+        display.clearDisplay();                
 
-    display.setCursor(0, 10);              
-    display.print(F("Do am   : "));
-    display.print(humidity);
-    display.println(" %");
+        display.setCursor(0, 0);
+        display.print(F("Nhiet do: "));
+        display.print(temp);
+        display.println(" C");
 
-    display.display();                      
+        display.setCursor(0, 10);              
+        display.print(F("Do am   : "));
+        display.print(hum);
+        display.println(" %");
+
+        display.display();    
+    }                  
 }
 
 /* Task display */
