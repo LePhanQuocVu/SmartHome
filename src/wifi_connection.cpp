@@ -1,7 +1,6 @@
 #include "../include/Wifi/wifi_connection.h"
-#include <WiFi.h>
-#include <WiFiClient.h>
-WiFiClient client;
+
+WiFiClientSecure espclient;
 
 const char* host = "esp32";
 const char* ssid = "DATN";
@@ -40,6 +39,6 @@ void WifiMonitorTask(void *pvParameter){
     while (true)
     {
         reconnectIfNeeded();
-         vTaskDelay(10000 / portTICK_PERIOD_MS); 
+         vTaskDelay(10000 / portTICK_PERIOD_MS); // check wifi every 10s
     }
 }
