@@ -18,5 +18,7 @@ ESP32 Wemos D1 R32: https://doc.riot-os.org/group__boards__esp32__wemos__d1__r32
 
 Board đa chức năng mở rộng DHT11 LM35 Buzzer IR Photoresistor VR RGB Button Led Shield: https://icdayroi.com/board-da-chuc-nang-mo-rong-dht11-lm35-buzzer-ir-photoresistor-vr-rgb-button-led-shield
 
+MQTT connect to hiveMQ Broker : https://registry.platformio.org/libraries/knolleary/PubSubClient/installation
+
 ### Technology
 FreeRTOS: https://www.freertos.org/Documentation/00-Overview
