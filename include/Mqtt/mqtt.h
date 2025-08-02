@@ -21,7 +21,7 @@ void mqttInit();
 bool isMqttConnected();
 void callback(char* topic, byte* payload, unsigned int length);
 void reconnect();
-void recconnectIfNeed();
+void reconnectIfNeed();
 void publicMessage(const char* topic, String payload,boolean retained);
 
 /**MQTT task */

@@ -35,6 +35,7 @@ void reconnectIfNeeded() {
         connectWifi();
     }
 }
+/** WIFI CONNECT */
 void WifiMonitorTask(void *pvParameter){
     while (true)
     {

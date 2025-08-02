@@ -4,6 +4,7 @@
 DHT dht(DHTPIN, DHTTYPE);
 float temperature = 0;
 float humidity = 0;
+
 void readDHT11(){
     dht.begin();
     temperature= dht.readTemperature();
@@ -20,7 +21,7 @@ void readDHT11(){
     Serial.print(humidity);
 
 }
-
+/** READ DHT11 SENSOR */
 void TaskTemperature(void *pvParameters) {
     while (true)
     {

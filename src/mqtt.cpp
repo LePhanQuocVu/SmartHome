@@ -82,13 +82,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 /*CONNECT TO MQTT */
 void reconnect() {
-  int res = 20;
-  while (!isMqttConnected() && res > 0) {
+  while (!isMqttConnected()) {
     Serial.print("reconnect...");
     String clientId = "device1";
     clientId += String(random(0xffff), HEX);
+    printf("\nClientID: %s", clientId);
     if(client.connect(clientId.c_str(),mqtt_username, mqtt_password)) {
-      Serial.println("connected");
+      Serial.println("\nMQTTconnected");
       /* subscribe to temp topic */
       client.subscribe("home/temperature");
 
@@ -96,13 +96,12 @@ void reconnect() {
       Serial.println(WiFi.localIP());
       Serial.print("failed, rc=");
       Serial.print(client.state());
-      vTaskDelay(500/portTICK_PERIOD_MS);
-      res--;
+      vTaskDelay(5000/portTICK_PERIOD_MS);
     }
   }
 }
 /* RECONNECT WHEN NEEDED*/
-void recconnectIfNeed() {
+void reconnectIfNeed() {
   if(!isMqttConnected()) {
     reconnect();
   }
@@ -117,9 +116,9 @@ void publicMessage(const char* topic, String payload,boolean retained) {
 /**MQTT TASK */
 void MqttMonitorTask(void *pvParameter) {
   while(true) {
-    reconnectIfNeeded();
+    reconnectIfNeed();
     client.loop();
-    vTaskDelay(20000/portTICK_PERIOD_MS);
+    vTaskDelay(5000/portTICK_PERIOD_MS); // keep alive with MQTT
   }
 }
 
