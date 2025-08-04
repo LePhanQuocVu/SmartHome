@@ -1,8 +1,5 @@
-#include "../include/Oled/oled96.h"
-#include "../include/Sensor/dht11.h"
-
+#include "../include/global.h"
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-SemaphoreHandle_t xMutex = xSemaphoreCreateMutex();
 
 /**INIT OLEd */
 void initOled(){
@@ -40,11 +37,12 @@ void displayTemperature() {
 }
 
 /* Task display */
-void TaskDisplayOled(void *pvParameter) {
+void displayOledTask(void *pvParameter) {
     while (true)
-    {
+    {   
+        Serial.println("\nTask Oled running\n");  
         displayTemperature();
-        vTaskDelay(2000/portTICK_PERIOD_MS);
+        vTaskDelay(4000/portTICK_PERIOD_MS);
     }
     
 }
