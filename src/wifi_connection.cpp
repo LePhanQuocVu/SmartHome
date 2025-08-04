@@ -36,9 +36,9 @@ void reconnectIfNeeded() {
     }
 }
 /** WIFI CONNECT */
-void WifiMonitorTask(void *pvParameter){
+void wifiMonitorTask(void *pvParameter){
     while (true)
-    {
+    {   
         reconnectIfNeeded();
          vTaskDelay(10000 / portTICK_PERIOD_MS); // check wifi every 10s
     }

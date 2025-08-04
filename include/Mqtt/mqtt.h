@@ -25,6 +25,7 @@ void reconnectIfNeed();
 void publicMessage(const char* topic, String payload,boolean retained);
 
 /**MQTT task */
-void MqttMonitorTask(void *pvParameter);
+void mqttConnectTask(void *pvParameter);
+void mqttCallbackTask(void *pvParamter);
 
 #endif

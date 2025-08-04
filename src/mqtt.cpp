@@ -1,5 +1,4 @@
-#include "../include/Mqtt/mqtt.h"
-
+#include "../include/global.h"
 
 const char* mqtt_server = "85833738f7d240b29144c046a83534f0.s1.eu.hivemq.cloud";
 const char* mqtt_username = "iot_home";
@@ -50,7 +49,7 @@ int value = 0;
 
 /**INIT  MQTTT */
 void mqttInit() {
-    pinMode(LED_T, OUTPUT);
+    
     espclient.setCACert(root_ca);
     client.setServer(mqtt_server,8883);
     client.setCallback(callback);
@@ -66,16 +65,46 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
+  Serial.print("\nl: ");
+  Serial.print(length);
+  Serial.println();
+
   for (int i = 0; i < length; i++) {
     Serial.print((char)payload[i]);
   }
   Serial.println();
   /** LED TEST */
-  if ((char)payload[0] == '1') {
-    digitalWrite(LED_T, LOW);   // Turn the LED on (Note that LOW is the voltage level
+  if(strcmp(topic, "iot_home/led_state") == 0) {
+    Serial.print("\nReceive on topic:");
+    Serial.print(topic); 
 
-  } else {
-    digitalWrite(LED_T, HIGH);  // Turn the LED off by making the voltage HIGH
+    if ((char)payload[0] == '1') {
+      digitalWrite(LED_PIN,LOW);   // Turn the LED on (Note that LOW is the voltage level
+
+    } else {
+      digitalWrite(LED_PIN, HIGH);  // Turn the LED off by making the voltage HIGH
+    }
+  } else if(strcmp(topic, "iot_home/fan_state") == 0)  {
+
+    if ((char)payload[0] == '1') {
+        //turn fan
+    } else {
+      // off fan
+    }
+  }
+  else if(strcmp(topic, "iot_home/connectMode") == 0)
+  {
+    if(char(payload[0]) == '0') {
+      Serial.print("Current mode: ");
+      Serial.print(currentMode);
+      /** convert to Auto Mode */
+      currentMode = AUTO;
+    }else {
+      Serial.print("Current mode: ");
+      Serial.print(currentMode);
+      /*Convert to Normal Mode*/
+      currentMode = NORMAL;
+    }
   }
 
 }
@@ -89,9 +118,10 @@ void reconnect() {
     printf("\nClientID: %s", clientId);
     if(client.connect(clientId.c_str(),mqtt_username, mqtt_password)) {
       Serial.println("\nMQTTconnected");
-      /* subscribe to temp topic */
-      client.subscribe("home/temperature");
-
+      /* Subscribe to the MQTT TOPIC*/
+      client.subscribe("iot_home/led_state");
+      client.subscribe("iot_home/fan_state");
+      client.subscribe("iot_home/connectMode");
     } else {
       Serial.println(WiFi.localIP());
       Serial.print("failed, rc=");
@@ -114,11 +144,16 @@ void publicMessage(const char* topic, String payload,boolean retained) {
 }
 
 /**MQTT TASK */
-void MqttMonitorTask(void *pvParameter) {
+void mqttConnectTask(void *pvParameter) {
   while(true) {
     reconnectIfNeed();
-    client.loop();
     vTaskDelay(5000/portTICK_PERIOD_MS); // keep alive with MQTT
   }
 }
 
+void mqttCallbackTask(void *pvParamter) {
+  while(1) {
+    client.loop();
+    vTaskDelay(100/portTICK_PERIOD_MS);
+  }
+}

@@ -1,24 +1,58 @@
 #include <Arduino.h>
-#include "../include/Wifi/wifi_connection.h"
-#include "../include/Sensor/dht11.h"
-#include "../include/Oled/oled96.h"
+#include "global.h"
 
-#include "../include/Mqtt/mqtt.h"
+TaskHandle_t autoTempHandle = NULL;
+TaskHandle_t readSensorHandle = NULL;
 
-#define LED_PIN 2
-#define LED_WIFI 4
+void fsmTask(void *pvParameters) {
+    while (true)
+    {
+      Serial.printf("\nfsmTaskRunning!\n");
+       switch (currentMode)
+      {
+        case NORMAL:
+         Serial.print("\nRunning on Normal Mode\r\n");
+          if (autoTempHandle != NULL)
+            vTaskSuspend(autoTempHandle);
+          break;
+        case AUTO:
+          Serial.print("\nRunning on Auto Mode\r\n");
+          if (autoTempHandle != NULL)
+            vTaskResume(autoTempHandle);
+          break;
+        default:
+          break;
+      }
+      vTaskDelay(5000/portTICK_PERIOD_MS);  
+    }
+    
+}
+
+void vTestTask(void *pvParameters) {
+  const char* pvTaskName = "Task Test";
+  const int data = (int) pvParameters;
+      for(;;) {
+        Serial.print("\nData: ");
+        Serial.print(data);
+        Serial.println();
+        vTaskDelay(2000/portTICK_PERIOD_MS);
+  }
+}
 
 void setup() {
+  pinMode(LED_PIN, OUTPUT);
   Serial.begin(115200);
   initOled();
   connectWifi();
   mqttInit();
-  xTaskCreate(WifiMonitorTask, "ReconnectWifi", 4096, NULL,2,NULL);
-   xTaskCreate(MqttMonitorTask, "ConnectMQTT", 8192, NULL,1, NULL);
-  xTaskCreate(TaskTemperature, "ReadDHT11", 2048, NULL,1,NULL);
-  xTaskCreate(TaskDisplayOled,"Oled",2048, NULL,1,NULL );
-}
-
+  xTaskCreate(wifiMonitorTask, "ReconnectWifi", 4096, NULL,2,NULL);
+  xTaskCreate(mqttConnectTask, "ConnectMQTT", 8192, NULL,2, NULL);
+  xTaskCreate(mqttCallbackTask, "mqttCallback", 2048,NULL, 2, NULL);
+  xTaskCreate(readSensorTask, "ReadDHT11", 2048, NULL,1,NULL);
+  xTaskCreate(displayOledTask,"Oled",2048, NULL,1,NULL );
+  xTaskCreate(fsmTask, "fsmMachine",2048,NULL,3,NULL);
+  xTaskCreate(autoTempTask, "autoTemp", 1024, NULL,1,&autoTempHandle);
+  }
 
 void loop() {
   
