@@ -58,6 +58,7 @@
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
     "cmath": "cpp",
-    "oled96.h": "c"
+    "oled96.h": "c",
+    "atomic": "cpp"
   }
 }

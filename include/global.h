@@ -15,7 +15,8 @@
 #define DHTPIN 14 // D4 = GPIO14
 #define BUZZPIN 27 // D5 = GPIO27
 
-
+#define LED_HOME  25
+#define FAN_HOME 26
 
 enum modeConnect {
   NORMAL,
@@ -25,4 +26,6 @@ enum modeConnect {
 extern enum modeConnect currentMode;
 
 extern SemaphoreHandle_t xMutex;
-#endif 
+extern QueueHandle_t xMqttQueue;
+
+#endif

@@ -65,9 +65,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
-  Serial.print("\nl: ");
-  Serial.print(length);
-  Serial.println();
 
   for (int i = 0; i < length; i++) {
     Serial.print((char)payload[i]);
@@ -77,7 +74,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   if(strcmp(topic, "iot_home/led_state") == 0) {
     Serial.print("\nReceive on topic:");
     Serial.print(topic); 
-
+    // push to queue task led
     if ((char)payload[0] == '1') {
       digitalWrite(LED_PIN,LOW);   // Turn the LED on (Note that LOW is the voltage level
 
@@ -85,7 +82,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       digitalWrite(LED_PIN, HIGH);  // Turn the LED off by making the voltage HIGH
     }
   } else if(strcmp(topic, "iot_home/fan_state") == 0)  {
-
+    // push to queue fan 
     if ((char)payload[0] == '1') {
         //turn fan
     } else {
@@ -94,20 +91,20 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   else if(strcmp(topic, "iot_home/connectMode") == 0)
   {
-    if(char(payload[0]) == '0') {
       Serial.print("Current mode: ");
       Serial.print(currentMode);
       /** convert to Auto Mode */
-      currentMode = AUTO;
-    }else {
-      Serial.print("Current mode: ");
-      Serial.print(currentMode);
-      /*Convert to Normal Mode*/
-      currentMode = NORMAL;
+      BaseType_t xStatus; 
+     uint8_t lValueToSend = payload[0] - '0';
+      xStatus = xQueueSendToBack(xMqttQueue, &lValueToSend,0);
+      if(xStatus != pdPASS) {
+        Serial.print("/nErrror\r\n");
+      } else {
+        Serial.print("\nSuccess send to Queue\r\n");
+      }
     }
   }
 
-}
 
 /*CONNECT TO MQTT */
 void reconnect() {
