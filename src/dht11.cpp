@@ -1,33 +1,36 @@
 #include "../include/global.h"
 
 DHT dht(DHTPIN, DHTTYPE);
-float temperature = 0;
-float humidity = 0;
+float gTemperature = 0;
+float gHumidity = 0;
 
 void readDHT11(){
     dht.begin();
     if(xSemaphoreTake(xMutex, portMAX_DELAY)) {
-        temperature= dht.readTemperature();
-        humidity = dht.readHumidity();
+        gTemperature= dht.readTemperature();
+        gHumidity = dht.readHumidity();
         xSemaphoreGive(xMutex);
         // Check if any reads failed and exit early (to try again).
-        if (isnan(humidity) || isnan(temperature)) {
+        if (isnan(gHumidity) || isnan(gTemperature)) {
             Serial.println(F("Failed to read from DHT sensor!"));
             return;
         }   
         Serial.print(F("%\nTemperature: "));
-        Serial.print(temperature);
+        Serial.print(gTemperature);
         Serial.print(F("\nHumidity: "));
-        Serial.print(humidity);
+        Serial.print(gHumidity);
     }
 
 }
 void autoTempTask(void *pvParameter) {
+    float temp;
    while (true)
    {
     Serial.println("\nAtuo TempTask is running!\n");
-     {
-        if(temperature < 30) {
+    if(xSemaphoreTake(xMutex, portMAX_DELAY)) {
+        temp = gTemperature;
+        xSemaphoreGive(xMutex);
+         if(temp < 30) {
             //turn on LED
             digitalWrite(LED_PIN, HIGH);
         } else {

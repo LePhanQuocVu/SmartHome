@@ -6,8 +6,8 @@
 #define DHTTYPE DHT11   // DHT11
 
 extern DHT dht;
-extern float temperature;
-extern float humidity;
+extern float gTemperature;
+extern float gHumidity;
 
 void readDHT11();
 

@@ -15,8 +15,8 @@ void initOled(){
 /** Display Data */
 void displayTemperature() {
     if(xSemaphoreTake(xMutex, portMAX_DELAY)) {
-        float temp = temperature;
-        float hum = humidity;
+        float temp = gTemperature;
+        float hum = gHumidity;
 
         xSemaphoreGive(xMutex);
         
