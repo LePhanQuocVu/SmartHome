@@ -57,6 +57,7 @@ void setup() {
   initOled();
   connectWifi();
   mqttInit();
+  initServo;
   xTaskCreate(wifiMonitorTask, "ReconnectWifi", 4096, NULL,2,NULL);
   xTaskCreate(mqttConnectTask, "ConnectMQTT", 8192, NULL,2, NULL);
   xTaskCreate(mqttCallbackTask, "mqttCallback", 2048,NULL, 2, NULL);
@@ -64,9 +65,10 @@ void setup() {
   xTaskCreate(displayOledTask,"Oled",2048, NULL,1,NULL );
   xTaskCreate(fsmTask, "fsmMachine",2048,NULL,3,NULL);
   xTaskCreate(autoTempTask, "autoTemp", 1024, NULL,1,&autoTempHandle);
+  xTaskCreate(servoControlTask, "controlServo", 2048, NULL,2, NULL);
+  xTaskCreate(handleDistanceTask, "ulSensorTask", 2048, NULL, 2, NULL);
   }
 
 void loop() {
   
-    
 }
