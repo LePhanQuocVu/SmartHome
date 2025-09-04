@@ -5,4 +5,5 @@ enum modeConnect currentMode = NORMAL;
 SemaphoreHandle_t xMutex = xSemaphoreCreateMutex();
 QueueHandle_t xMqttQueue = xQueueCreate(5, sizeof(uint8_t));
 QueueHandle_t xServoQueue = xQueueCreate(5, sizeof(uint8_t));
+QueueHandle_t xGasControlQueue = xQueueCreate(5, sizeof(uint8_t));
 SemaphoreHandle_t xServoSemaphore = xSemaphoreCreateBinary();

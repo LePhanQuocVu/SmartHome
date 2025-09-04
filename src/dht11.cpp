@@ -1,6 +1,6 @@
 #include "../include/global.h"
 
-DHT dht(DHTPIN, DHTTYPE);
+DHT dht(DHT_PIN, DHTTYPE);
 float gTemperature = 0;
 float gHumidity = 0;
 

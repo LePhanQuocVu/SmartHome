@@ -52,9 +52,10 @@ void vTestTask(void *pvParameters) {
 }
 
 void setup() {
-  pinMode(LED_PIN, OUTPUT);
   Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
   initOled();
+  initBuzzer();
   connectWifi();
   mqttInit();
   initServo;
@@ -67,7 +68,10 @@ void setup() {
   xTaskCreate(autoTempTask, "autoTemp", 1024, NULL,1,&autoTempHandle);
   xTaskCreate(servoControlTask, "controlServo", 2048, NULL,2, NULL);
   xTaskCreate(handleDistanceTask, "ulSensorTask", 2048, NULL, 2, NULL);
-  }
+  xTaskCreate(readGasAnalogTask, "readGasTask", 2048, NULL, 2, NULL);
+  xTaskCreate(gasNotifyTask, "gasNotifyTask", 2048, NULL, 2, NULL);
+  xTaskCreate(buzzerTask, "buzzerTask", 2048, NULL, 1,NULL);
+}
 
 void loop() {
   
