@@ -28,7 +28,7 @@
 #define SERVO_PIN 12
 
 /**THESSHOLD */
-#define THRESS_HOLD_GAS 900
+#define THRESS_HOLD_GAS 700
 
 enum modeConnect {
   NORMAL,
