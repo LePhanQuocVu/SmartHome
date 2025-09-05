@@ -24,15 +24,7 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRouter);
 
 
-// change readme
-// rebase
-// rebase 2 -test
-// rebase 2 - quall
-// rebase 3
-
-// git new branch
-// do nothing on vu_brannch
-// do on vu branch
+// done
 app.listen(process.env.PORT, () => {
   console.log(`Example app listening on port ${process.env.PORT}`)
 })
