@@ -39,4 +39,4 @@ MONGO_URI={your-db-url}
 ```
 
 ### Contribute
-Thank you for all your contribute
+Wellcome
