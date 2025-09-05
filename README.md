@@ -1,21 +1,35 @@
+
 ## Project: SMART_IOT
 
 Back-end IOT using NodeJS with Node.js, Express, MongoDB  build with fully restfull API
 
-## DOCUMENT
 
-ExpressJS: https://expressjs.com/ 
-MongoDB: https://mongoosejs.com/
+---
+## Documentation
 
-## HOW TO SETUP
+- [ExpressJS](https://expressjs.com/)  
+- [Mongoose (MongoDB)](https://mongoosejs.com/)  
 
-Clone: git clone 
-cd back_end
+---
+## Getting Started
+### 1. Clone the repository
+```bash
+     git clone 
+    cd back_end
+    npm install
+```
+### 2. Install dependencies
+```
 npm install
+```
+### 3. Setup environment variables
+Create a .env file in the root directory and add:
+PORT=<your-port>
+MONGO_URI=<your-mongodb-uri>
 
-Create .env file
-add: PORT:{yourPort}
-    MONGO_URI:{yourDatabase}
+### 4. Run project
 
-Run project: npm run dev
+```bash
+    npm run dev
+```
 
