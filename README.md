@@ -14,7 +14,7 @@ Back-end IOT using NodeJS with Node.js, Express, MongoDB  build with fully restf
 ## Getting Started
 ### 1. Clone the repository
 ```bash
-     git clone 
+   git clone  https://github.com/LePhanQuocVu/SmartHome.git
     cd back_end
     npm install
 ```
@@ -23,9 +23,14 @@ Back-end IOT using NodeJS with Node.js, Express, MongoDB  build with fully restf
 npm install
 ```
 ### 3. Setup environment variables
-Create a .env file in the root directory and add:
-PORT=<your-port>
-MONGO_URI=<your-mongodb-uri>
+Create a **`.env`** file in the root directory and add the following:  
+
+```env
+# Server Configuration
+PORT={your-port}
+# Database Configuration
+MONGO_URI={your-db-url}
+```
 
 ### 4. Run project
 
