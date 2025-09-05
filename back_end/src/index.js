@@ -25,36 +25,6 @@ app.use('/api/users', userRouter);
 
 
 // done
-
-
-// vu code tiep
-
-// leader code
-// vu code
-// leader code 1
-// leader code2
-
-
-// vu code 1
-// vucode 2
-// vu code 2 tiep
-// vu code l1
-/// vu code l2
-
-//leader code  tiep
-// ledaedr code l2
-
-// leader code l3
-
-
-// leader code P1
-// leader code P2
-
-// Leader P3
-
-
-// vu P1
-// vu P2
 app.listen(process.env.PORT, () => {
   console.log(`Example app listening on port ${process.env.PORT}`)
 })
