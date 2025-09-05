@@ -38,3 +38,5 @@ MONGO_URI={your-db-url}
     npm run dev
 ```
 
+### Contribute
+
