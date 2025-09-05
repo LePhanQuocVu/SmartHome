@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRouter);
 
 
-// nothing
+// do nothing
 app.listen(process.env.PORT, () => {
   console.log(`Example app listening on port ${process.env.PORT}`)
 })
