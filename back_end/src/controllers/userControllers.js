@@ -1,7 +1,6 @@
-const { json } = require("body-parser");
-const User = require("../model/userModel");
+import User from "../model/userModel.js"
 
-class UserController {
+export default  class userController {
  async newUser(req,res) {
     try {
         const { name, phone, status, ledState, fanState, gasState } = req.body;
@@ -82,5 +81,3 @@ class UserController {
     }
  }
 };
-
-module.exports = new UserController();

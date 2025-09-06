@@ -1,15 +1,22 @@
-const express = require('express')
-require('dotenv').config({ quiet: true });
-const connectDB = require('./config/db')
-const userRouter = require('./router/userRoute')
+import express from 'express'
+import dotenv from "dotenv";
+dotenv.config({ quiet: true });
+import mqtt from 'mqtt';
+import bodyParser from "body-parser";
+import cors from "cors";
+import {connectDB}  from './config/db.js'
+import userRouter from './router/userRoute.js';
+
+/** MQTT connect */
 
 /**Start App */
 const app = express()
 
 /**Middelware */
-const cors = require('cors');
-const bodyParser = require('body-parser');
 
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(bodyParser.json());
 
