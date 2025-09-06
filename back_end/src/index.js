@@ -7,29 +7,25 @@ import cors from "cors";
 import {connectDB}  from './config/db.js'
 import userRouter from './router/userRoute.js';
 
-/** MQTT connect */
+import { connectMQTT } from './mqttBroker/mqtt.js';
 
 /**Start App */
 const app = express()
 
+/** Connect to MQTT */
+connectMQTT();
+
+/** connect to db */
+connectDB();
+
 /**Middelware */
-
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(bodyParser.json());
 
-/** connect to db */
-connectDB();
-
-/** routing */
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
 /**User Route */
 app.use('/api/users', userRouter);
-
 
 // done
 app.listen(process.env.PORT, () => {

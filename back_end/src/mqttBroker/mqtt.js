@@ -1,27 +1,35 @@
 import mqtt from 'mqtt';
+import fs from 'fs';
 
+export const connectMQTT = () => {
+  const options = {
+    host: process.env.MQTT_HOST, //  hostname từ HiveMQ
+    port: process.env.MQTT_PORT, // cổng MQTTS
+    protocol: "mqtts",
+    username: process.env.MQTT_USER, // user bạn tạo trên HiveMQ
+    password: process.env.MQTT_PASSWORD, // mật khẩu
+    // Nếu HiveMQ yêu cầu CA certificate:
+    ca: [fs.readFileSync('./ca.pem')],
+  };
+  const client = mqtt.connect(options);
 
-const options = {
-  protocol: 'mqtts',
-  host: '85833738f7d240b29144c046a83534f0.s1.eu.hivemq.cloud',
-  port: 8883,
-  ca: [fs.readFileSync('/path/to/ca.crt')],
-  cert: fs.readFileSync('/path/to/client.crt'),
-  key: fs.readFileSync('/path/to/client.key'),
-};
+  client.on("connect", () => {
+    console.log("Connected to HiveMQ Cloud via MQTTS");
+    // Subscribe topic
+    client.subscribe("iot/test", (err) => {
+      if (!err) {
+        console.log("Subscribed to topic: iot/test");
+        // Publish thử
+        client.publish("iot/test", "Hello from NodeJS");
+      }
+    });
+  });
 
-const client = mqtt.connect(options);
+  client.on("message", (topic, message) => {
+    console.log(`Received: ${message.toString()} on topic ${topic}`);
+  });
 
-
-client.on('message', (topic, message) => {
-  console.log(`Received message on topic ${topic}: ${message}`);
-});
-
-
-client.publish('iot_home/led_state', '1', { retain: true }, (err) => {
-  if (err) {
-    console.error('Failed to publish message:', err);
-  } else {
-    console.log('Message published with retain flag set to true');
-  }
-});
+  client.on("error", (err) => {
+    console.error("Connection error:", err);
+  });
+}
