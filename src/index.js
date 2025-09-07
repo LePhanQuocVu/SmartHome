@@ -16,7 +16,7 @@ import { Socket } from 'net';
 /**Start App */
 const app = express()
 
-// ININT SERVER SOCKET IO
+// Create Serve IO
 const server = http.createServer(app);
 // khởi tạo socket riêng
 initSocket(server);
