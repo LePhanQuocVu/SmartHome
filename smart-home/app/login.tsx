@@ -3,17 +3,23 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-nativ
 import { Stack, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
+import { authService } from "@/services/authServices";
+
+
 export default function LoginScreen() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleLogin = () => {
-    if (phone && password) {
-      alert("Đăng nhập thành công!");
-      router.replace("/"); // ✅ đi tới HomePage và không quay lại Login
-    } else {
-      alert("Vui lòng nhập đầy đủ thông tin!");
+  const handleLogin = async () => {
+
+    try {
+        const res = await authService.login(phone, password);
+        console.log(res);
+        alert("Đăng nhập thành công!");
+        router.replace("/");
+    } catch(err: any) {
+        alert(err.response?.data?.message || "Lỗi đăng nhập!");
     }
   };
 
