@@ -18,6 +18,8 @@ const app = express()
 
 // tạo socket.io server
 const server = http.createServer(app);
+// khởi tạo socket riêng
+initSocket(server);
 
 /** Connect to MQTT */
 connectMQTT();
