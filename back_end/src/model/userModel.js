@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema({
   userId:  { type: Number, unique: true },
   name: {type: String, require: true},
   phone: { type: String, required: true, unique: true},
+  password: { type: String, required: true },
+  role: { type: String, enum: ["user", "admin"], default: "user" },
   status: { type: String, default: 'inactive' },
   ledState: { type: Boolean, default: false },
   fanState: { type: Boolean, default: false },

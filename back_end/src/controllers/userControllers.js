@@ -1,24 +1,49 @@
 import User from "../model/userModel.js"
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 export default  class userController {
- async newUser(req,res) {
+  newUser = async (req,res)=> {
     try {
-        const { name, phone, status, ledState, fanState, gasState } = req.body;
+        const { name, phone, password, status, ledState, fanState, gasState } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
         /** check user exist */
         const existUser = await User.findOne({ phone });
         if (existUser) {
             return res.status(400).json({ message: 'User already exists with this phone number' });
         }
-        const newUser = new User({name, phone, status, ledState, fanState, gasState });
+        const newUser = new User({name, phone, password:hashedPassword, status, ledState, fanState, gasState });
         await newUser.save();
-        res.status(201).json(newUser);
+        res.status(201).json({message: "Register success!", newUser});
     } catch(err) {
         res.status(500).json({ error: err.message });
     }
  }
- async updateLedState(req,res) {
+ userLogin = async(req,res) => {
+    try{
+        const {phone, password} = req.body;
+        const existUser = await User.findOne({phone});
+        if (!existUser) return res.status(404).json({ message: "User not found" });
+
+        const isMatch = await bcrypt.compare(password, existUser.password);
+        if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+        const token = jwt.sign(
+            {
+                id: existUser.userId
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "1h"
+            }
+        )
+        res.status(200).json({msg: "Login success!", token});
+    } catch(err) {
+          res.status(500).json({msg: err.message});
+    }
+ }
+ updateLedState =  async(req,res) => {
      try {
-         const userId = req.params;
+         const userId = req.params.userId;
         const { ledState} = req.body;
         // 1. Kiểm tra user tồn tại
         const user = await User.findOne({ userId });
@@ -35,9 +60,9 @@ export default  class userController {
         res.status(500).json({ error: err.message });
   }
  }
- async updateFanState(req,res) {
+updateFanState =  async  (req,res) =>{
     try{
-        const userId = req.params;
+        const userId = req.params.userId;
         const { fanState} = req.body;
         const user = await User.findOne({userId});
         if(!user) {
@@ -51,9 +76,9 @@ export default  class userController {
         res.status(500).json({error: err.message});
     }
  }
- async updateGasState(req,res) {
+ updateGasState = async (req,res) => {
     try{
-        const userId = req.params;
+        const userId = req.params.userId;
         const { gasState} = req.body;
         const user = await User.findOne({userId});
         if(!user) {
@@ -67,7 +92,7 @@ export default  class userController {
         res.status(500).json({error: err.message});
     }
  }
-  async deleteUserById(req,res) {
+ deleteUserById =  async(req,res) => {
     try {
         const userId = req.params.userId;
          // 1. Tìm và xóa user

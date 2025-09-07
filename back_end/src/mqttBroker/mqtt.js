@@ -1,6 +1,6 @@
 import mqtt from 'mqtt';
 import fs from 'fs';
-
+import { sendRealtimeToUser, broadcast } from '../services/socket.js';
 export const connectMQTT = () => {
   const options = {
     host: process.env.MQTT_HOST, //  hostname từ HiveMQ
@@ -27,6 +27,8 @@ export const connectMQTT = () => {
 
   client.on("message", (topic, message) => {
     console.log(`Received: ${message.toString()} on topic ${topic}`);
+    // send to mobile app
+    
   });
 
   client.on("error", (err) => {

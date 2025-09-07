@@ -4,13 +4,20 @@ dotenv.config({ quiet: true });
 import mqtt from 'mqtt';
 import bodyParser from "body-parser";
 import cors from "cors";
+import http from 'http'
+import { Server as IOServer } from 'socket.io';
 import {connectDB}  from './config/db.js'
 import userRouter from './router/userRoute.js';
 
 import { connectMQTT } from './mqttBroker/mqtt.js';
+import { initSocket } from './services/socket.js';
+import { Socket } from 'net';
 
 /**Start App */
 const app = express()
+
+// tạo socket.io server
+const server = http.createServer(app);
 
 /** Connect to MQTT */
 connectMQTT();
@@ -20,9 +27,9 @@ connectDB();
 
 /**Middelware */
 app.use(bodyParser.json());
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-app.use(bodyParser.json());
 
 /**User Route */
 app.use('/api/users', userRouter);
