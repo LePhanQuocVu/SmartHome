@@ -1,31 +1,17 @@
 import { Server as IOServer } from 'socket.io';
 import jwt from 'jsonwebtoken';
-
+import User from '../model/userModel.js'
+import { socketAuthMiddleware } from '../middleware/socket.js';
 let ioInstance;
 
 export function initSocket(server) {
   const io = new IOServer(server, {
-    cors: { origin: '*' }
+    cors: { origin: '*' },
+    methods: ["GET", "POST"]
   });
-
-  // middleware xác thực
-  io.use(async (socket, next) => {
-    try {
-      const token = socket.handshake.auth?.token;
-      if (!token) return next(new Error('Authentication error: token missing'));
-
-      const payload = jwt.verify(token, process.env.JWT_SECRET);
-
-      const user = await User.findById(payload.id);
-      if (!user) return next(new Error('Authentication error: user not found'));
-
-      socket.user = { id: payload.id, role: payload.role || 'user' };
-      next();
-    } catch (err) {
-      next(new Error('Authentication error: ' + err.message));
-    }
-  });
-
+  // middle ware
+  io.use(socketAuthMiddleware);
+  
   // event khi kết nối
   io.on('connection', (socket) => {
     console.log('Socket connected:', socket.id, 'userId=', socket.user.id);
