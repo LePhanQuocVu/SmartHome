@@ -21,21 +21,23 @@ export default  class userController {
  }
  userLogin = async(req,res) => {
     try{
+        console.log("user Call API Login");
         const {phone, password} = req.body;
         const existUser = await User.findOne({phone});
         if (!existUser) return res.status(404).json({ message: "User not found" });
-
+        console.log("Usser login: ", existUser);
         const isMatch = await bcrypt.compare(password, existUser.password);
         if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
         const token = jwt.sign(
             {
-                id: existUser.userId
+                id: existUser.userId, role: existUser.role
             },
             process.env.JWT_SECRET,
             {
                 expiresIn: "1h"
             }
         )
+        console.log("Token: ", token);
         res.status(200).json({msg: "Login success!", token});
     } catch(err) {
           res.status(500).json({msg: err.message});
