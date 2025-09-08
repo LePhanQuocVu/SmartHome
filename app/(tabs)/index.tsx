@@ -1,16 +1,43 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-import {View, Text, TouchableOpacity, Switch } from "react-native";
+import socket, { connectSocket } from "@/services/socket";
 import { Ionicons } from "@expo/vector-icons"; // icon chuông
+import { Image } from "expo-image";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+// Component Switch có kiểm tra đăng nhập
+const ProtectedSwitch = ({
+  value,
+  onToggle,
+  isLoggedIn,
+  showToast,
+}: {
+  value: boolean;
+  onToggle: () => void;
+  isLoggedIn: boolean;
+  showToast: (msg: string) => void;
+}) => {
+  const handleToggle = () => {
+    if (!isLoggedIn) {
+      showToast("⚠️ Vui lòng đăng nhập để tiếp tục");
+      return;
+    }
+    onToggle();
+  };
 
-import React, { useState } from "react";
-import { router, useRouter } from "expo-router";
+  return <Switch value={value} onValueChange={handleToggle} />;
+};
+
 export default function HomeScreen() {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
   const [autoMode, setAutoMode] = useState(false);
   const [hasNotification, setHasNotification] = useState(false);
   const [lightOn1, setLightOn1] = useState(false);
@@ -19,16 +46,64 @@ export default function HomeScreen() {
   const [gasSafe, setGasSafe] = useState(true);
   const [temperature, setTemperature] = useState(0);
   const [humidity, setHumidity] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const [message, setMessage] = useState("");
+  const [toastMessage, setToastMessage] = useState("");
+
+  // Hiển thị toast animation
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.delay(1500),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+    try {
+      const token = await AsyncStorage.getItem("JWT_TOKEN");
+      if (token) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy token:", error);
+      setIsLoggedIn(false);
+    }
+  };
+    checkLoginStatus();
+    connectSocket();
+    socket.on("welcome", (msg) => setMessage(msg));
+    socket.on("message", (msg) => console.log("📩", msg));
+
+    return () => {
+      socket.off("welcome");
+      socket.off("message");
+    };
+  }, []);
+
   return (
-    <View>
-       {/* Header */}
+    <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-         <TouchableOpacity>
-        <Image
-          source={{ uri: "https://i.pravatar.cc/100" }} // ảnh giả, sau này bạn thay link ảnh user
-          style={styles.avatar}
-        />
-      </TouchableOpacity>
+        <TouchableOpacity>
+          <Image
+            source={{ uri: "https://i.pravatar.cc/100" }}
+            style={styles.avatar}
+          />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>SMART HOME</Text>
         <TouchableOpacity style={styles.bellButton}>
           <Ionicons
@@ -38,6 +113,7 @@ export default function HomeScreen() {
           />
         </TouchableOpacity>
       </View>
+
       {/* Nội dung */}
       <View style={styles.content}>
         <View style={styles.card}>
@@ -45,63 +121,90 @@ export default function HomeScreen() {
           <Text style={styles.label}>💧 Độ ẩm: {humidity} %</Text>
         </View>
 
-         <View style={styles.card}>
-          {/* Đèn */}
+        <View style={styles.card}>
+          {/* Đèn 1 */}
           <View style={styles.row}>
-            <Text style={styles.label}>💡 Trạng thái đèn 1: {lightOn1 ? "Bật" : "Tắt"}</Text>
-            <Switch
+            <Text style={styles.label}>
+              💡 Trạng thái đèn 1: {lightOn1 ? "Bật" : "Tắt"}
+            </Text>
+            <ProtectedSwitch
               value={lightOn1}
-              onValueChange={setLightOn1}
+              onToggle={() => setLightOn1(!lightOn1)}
+              isLoggedIn={isLoggedIn}
+              showToast={showToast}
             />
           </View>
-          {/* Đèn 2*/}
+
+          {/* Đèn 2 */}
           <View style={styles.row}>
-            <Text style={styles.label}>💡 Trạng thái đèn 2: {lightOn2 ? "Bật" : "Tắt"}</Text>
-            <Switch
+            <Text style={styles.label}>
+              💡 Trạng thái đèn 2: {lightOn2 ? "Bật" : "Tắt"}
+            </Text>
+            <ProtectedSwitch
               value={lightOn2}
-              onValueChange={setLightOn2}
+              onToggle={() => setLightOn2(!lightOn2)}
+              isLoggedIn={isLoggedIn}
+              showToast={showToast}
             />
           </View>
 
           {/* Quạt */}
           <View style={styles.row}>
-            <Text style={styles.label}>🌀 Trạng thái quạt: {fanOn ? "Bật" : "Tắt"}</Text>
-            <Switch
+            <Text style={styles.label}>
+              🌀 Trạng thái quạt: {fanOn ? "Bật" : "Tắt"}
+            </Text>
+            <ProtectedSwitch
               value={fanOn}
-              onValueChange={setFanOn}
+              onToggle={() => setFanOn(!fanOn)}
+              isLoggedIn={isLoggedIn}
+              showToast={showToast}
             />
           </View>
 
           {/* Gas */}
           <View style={styles.row}>
-            <Text style={[styles.label, {color: gasSafe ? "green" : "red"}]} >🔥 Cảm biến khí Gas: {gasSafe ? "An toàn" : "Nguy hiểm"}</Text>
-            <Switch
+            <Text
+              style={[styles.label, { color: gasSafe ? "green" : "red" }]}
+            >
+              🔥 Cảm biến khí Gas: {gasSafe ? "An toàn" : "Nguy hiểm"}
+            </Text>
+            <ProtectedSwitch
               value={gasSafe}
-              onValueChange={setGasSafe}
+              onToggle={() => setGasSafe(!gasSafe)}
+              isLoggedIn={isLoggedIn}
+              showToast={showToast}
             />
           </View>
         </View>
+
+        {/* Chế độ hoạt động */}
         <View style={styles.card}>
           <Text style={styles.label}>Chế độ hoạt động:</Text>
           <View style={styles.modeRow}>
             <Text style={styles.label}>Normal Mode</Text>
-            <Switch
+            <ProtectedSwitch
               value={autoMode}
-              onValueChange={(val) => setAutoMode(val)}
+              onToggle={() => setAutoMode(!autoMode)}
+              isLoggedIn={isLoggedIn}
+              showToast={showToast}
             />
             <Text style={styles.label}>Auto Mode</Text>
           </View>
         </View>
       </View>
+
+      {/* Toast */}
+      <Animated.View style={[styles.toast, { opacity: fadeAnim }]}>
+        <Text style={styles.toastText}>{toastMessage}</Text>
+      </Animated.View>
     </View>
   );
 }
 
-
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#f5f5f5" },
-    header: {
-    height:  120,
+  container: { flex: 1, backgroundColor: "#4a4848ff" },
+  header: {
+    height: 120,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -133,9 +236,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 10,
   },
-   avatar: {
+  avatar: {
     width: 40,
     height: 40,
-    borderRadius: 20, // hình tròn
+    borderRadius: 20,
   },
-})
+  toast: {
+    position: "absolute",
+    bottom: 40,
+    alignSelf: "center",
+    backgroundColor: "black",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  toastText: {
+    color: "white",
+    fontSize: 14,
+  },
+});

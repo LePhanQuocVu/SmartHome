@@ -1,13 +1,56 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState, } from "react";
+import { Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function SettingsPage() {
+  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      const token = await AsyncStorage.getItem("JWT_TOKEN");
+      setIsLoggedIn(!!token); // nếu có token thì true
+    };
+    checkLogin();
+  }, []);
+
+  const handleLogout = () => {
+       if (Platform.OS === "web") {
+        if (window.confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+          AsyncStorage.removeItem("JWT_TOKEN");
+          setIsLoggedIn(false);
+          router.replace("/login");
+        }
+      } else {
+        Alert.alert(
+          "Xác nhận",
+          "Bạn có chắc chắn muốn đăng xuất không?",
+          [
+            {
+              text: "Hủy",
+              style: "cancel",
+            },
+            {
+              text: "Đăng xuất",
+              style: "destructive",
+              onPress: async () => {
+                await AsyncStorage.removeItem("JWT_TOKEN");
+                setIsLoggedIn(false);
+                router.replace("/login");
+              },
+            },
+          ],
+          { cancelable: true }
+        );
+      }
+    };
   const handlePress = (action: string) => {
     Alert.alert("Bạn chọn:", action);
   };
 
-  return (
+   return (
     <View style={styles.container}>
       <Text style={styles.title}>⚙️ Settings</Text>
 
@@ -32,20 +75,25 @@ export default function SettingsPage() {
 
       <View style={styles.separator} />
 
-      <TouchableOpacity style={styles.item} onPress={() => router.replace("/login")}>
-        <Text style={styles.itemText}>🔑 Đăng nhập</Text>
-        <Ionicons name="chevron-forward" size={20} color="#999" />
-      </TouchableOpacity>
-
-      <View style={styles.separator} />
-
-      <TouchableOpacity style={styles.item} onPress={() => handlePress("Đăng xuất")}>
-        <Text style={[styles.itemText, { color: "red" }]}>🚪 Đăng xuất</Text>
-      </TouchableOpacity>
+      {/* Hiển thị tùy theo trạng thái đăng nhập */}
+       {isLoggedIn ? (
+        <TouchableOpacity
+          style={styles.item}
+          onPress={handleLogout}
+        >
+          <Text style={{ fontSize: 16, color: "red", }}>🚪 Đăng xuất</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={styles.item}
+          onPress={() => router.replace("/login")}
+        >
+          <Text style={styles.itemText} >🔑 Đăng nhập</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

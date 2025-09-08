@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
-import { Stack, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-
-import { authService } from "@/services/authServices";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Stack, useRouter } from "expo-router";
+import React, { useState } from "react";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 
 export default function LoginScreen() {
@@ -14,12 +13,28 @@ export default function LoginScreen() {
   const handleLogin = async () => {
 
     try {
-        const res = await authService.login(phone, password);
-        console.log(res);
-        alert("Đăng nhập thành công!");
-        router.replace("/");
+        // const res = await authService.login(phone, password);
+        // console.log(res);
+        // alert("Đăng nhập thành công!");
+        // router.replace("/");
+        // const res = await fetch(`${process.env.BASE_URL}/api/users/userLogin`
+        const res = await fetch(`http://192.168.43.171:3000/api/users/userLogin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, password }),
+      });
+        const data = await res.json();
+        console.log(data);
+        console.log(data.token);
+          if (res.ok) {
+          await AsyncStorage.setItem("JWT_TOKEN", data.token);
+          alert("Đăng nhập thành công!");
+          router.navigate("/");
+        } else {
+          console.log(data.err);
+        }
     } catch(err: any) {
-        alert(err.response?.data?.message || "Lỗi đăng nhập!");
+        alert(err.response?.data?.message);
     }
   };
 
