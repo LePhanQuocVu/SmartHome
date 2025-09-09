@@ -1,9 +1,8 @@
 import socket, { connectSocket } from "@/services/socket";
 import { Ionicons } from "@expo/vector-icons"; // icon chuông
 import { Image } from "expo-image";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Animated,
   StyleSheet,
   Switch,
   Text,
@@ -11,7 +10,9 @@ import {
   View,
 } from "react-native";
 
+import ToastNotify from "@/components/Toaster";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 // Component Switch có kiểm tra đăng nhập
 const ProtectedSwitch = ({
   value,
@@ -36,8 +37,6 @@ const ProtectedSwitch = ({
 };
 
 export default function HomeScreen() {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
   const [autoMode, setAutoMode] = useState(false);
   const [hasNotification, setHasNotification] = useState(false);
   const [lightOn1, setLightOn1] = useState(false);
@@ -51,23 +50,8 @@ export default function HomeScreen() {
   const [message, setMessage] = useState("");
   const [toastMessage, setToastMessage] = useState("");
 
-  // Hiển thị toast animation
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    Animated.sequence([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.delay(1500),
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
+    // Gọi custom hook
+  const { ToastElement, showToast } = ToastNotify(2000);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -193,10 +177,8 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Toast */}
-      <Animated.View style={[styles.toast, { opacity: fadeAnim }]}>
-        <Text style={styles.toastText}>{toastMessage}</Text>
-      </Animated.View>
+      {/* Render Toast */}
+      {ToastElement}
     </View>
   );
 }

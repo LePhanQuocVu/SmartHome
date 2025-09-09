@@ -19,10 +19,10 @@ export default function LoginScreen() {
         // router.replace("/");
         // const res = await fetch(`${process.env.BASE_URL}/api/users/userLogin`
         const res = await fetch(`http://192.168.43.171:3000/api/users/userLogin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, password }),
-      });
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone, password }),
+        });
         const data = await res.json();
         console.log(data);
         console.log(data.token);
@@ -31,6 +31,7 @@ export default function LoginScreen() {
           alert("Đăng nhập thành công!");
           router.navigate("/");
         } else {
+          alert(data.message);
           console.log(data.err);
         }
     } catch(err: any) {
