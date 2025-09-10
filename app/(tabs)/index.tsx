@@ -1,4 +1,3 @@
-import socket, { connectSocket } from "@/services/socket";
 import { Ionicons } from "@expo/vector-icons"; // icon chuông
 import { Image } from "expo-image";
 import React, { useEffect, useState } from "react";
@@ -11,8 +10,8 @@ import {
 } from "react-native";
 
 import ToastNotify from "@/components/Toaster";
+import { connectSocket, convertMode, toggleLed1, toggleLed2 } from "@/services/socketInstance";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 // Component Switch có kiểm tra đăng nhập
 const ProtectedSwitch = ({
   value,
@@ -37,11 +36,11 @@ const ProtectedSwitch = ({
 };
 
 export default function HomeScreen() {
-  const [autoMode, setAutoMode] = useState(false);
+  const [modeState, setModeState] = useState(false);
   const [hasNotification, setHasNotification] = useState(false);
-  const [lightOn1, setLightOn1] = useState(false);
-  const [lightOn2, setLightOn2] = useState(false);
-  const [fanOn, setFanOn] = useState(false);
+  const [led1State, setLed1State] = useState(false);
+  const [led2State, setLed2State] = useState(false);
+  const [fanState, setFanState] = useState(false);
   const [gasSafe, setGasSafe] = useState(true);
   const [temperature, setTemperature] = useState(0);
   const [humidity, setHumidity] = useState(0);
@@ -54,30 +53,38 @@ export default function HomeScreen() {
   const { ToastElement, showToast } = ToastNotify(2000);
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
-    try {
+    const checkLogin = async () => {
       const token = await AsyncStorage.getItem("JWT_TOKEN");
-      if (token) {
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
+      setIsLoggedIn(!!token);
+      if(isLoggedIn) {
+         await connectSocket();
       }
-    } catch (error) {
-      console.error("Lỗi khi lấy token:", error);
-      setIsLoggedIn(false);
-    }
-  };
-    checkLoginStatus();
-    connectSocket();
-    socket.on("welcome", (msg) => setMessage(msg));
-    socket.on("message", (msg) => console.log("📩", msg));
-
-    return () => {
-      socket.off("welcome");
-      socket.off("message");
     };
-  }, []);
+    checkLogin();
+  },[]);
 
+   const handleToggleLed1 = () => {
+    const newState = !led1State;
+    setLed1State(newState);
+    toggleLed1(newState);
+  };
+
+    const handleToggleLed2 = () => {
+    const newState = !led2State;
+    setLed2State(newState);
+    toggleLed2(newState);
+  };
+    const handleToggeedFan = () => {
+    const newState = !fanState;
+     console.log(`New State fan1: ${newState}`);
+    setFanState(newState);
+    toggleLed2(newState);
+  };
+    const handleModeSate = () => {
+    const newState = !modeState;
+    setModeState(newState);
+    convertMode(newState);
+  };
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -109,24 +116,25 @@ export default function HomeScreen() {
           {/* Đèn 1 */}
           <View style={styles.row}>
             <Text style={styles.label}>
-              💡 Trạng thái đèn 1: {lightOn1 ? "Bật" : "Tắt"}
+              💡 Trạng thái đèn 1: {led1State ? "Bật" : "Tắt"}
             </Text>
             <ProtectedSwitch
-              value={lightOn1}
-              onToggle={() => setLightOn1(!lightOn1)}
+              value={led1State}
+               onToggle={handleToggleLed1}
               isLoggedIn={isLoggedIn}
               showToast={showToast}
+              
             />
           </View>
 
           {/* Đèn 2 */}
           <View style={styles.row}>
             <Text style={styles.label}>
-              💡 Trạng thái đèn 2: {lightOn2 ? "Bật" : "Tắt"}
+              💡 Trạng thái đèn 2: {led2State ? "Bật" : "Tắt"}
             </Text>
             <ProtectedSwitch
-              value={lightOn2}
-              onToggle={() => setLightOn2(!lightOn2)}
+              value={led2State}
+              onToggle={handleToggleLed2}
               isLoggedIn={isLoggedIn}
               showToast={showToast}
             />
@@ -135,11 +143,11 @@ export default function HomeScreen() {
           {/* Quạt */}
           <View style={styles.row}>
             <Text style={styles.label}>
-              🌀 Trạng thái quạt: {fanOn ? "Bật" : "Tắt"}
+              🌀 Trạng thái quạt: {fanState ? "Bật" : "Tắt"}
             </Text>
             <ProtectedSwitch
-              value={fanOn}
-              onToggle={() => setFanOn(!fanOn)}
+              value={fanState}
+              onToggle={handleToggeedFan}
               isLoggedIn={isLoggedIn}
               showToast={showToast}
             />
@@ -154,7 +162,9 @@ export default function HomeScreen() {
             </Text>
             <ProtectedSwitch
               value={gasSafe}
-              onToggle={() => setGasSafe(!gasSafe)}
+              onToggle={() =>{
+                 setGasSafe(!gasSafe)
+              }}
               isLoggedIn={isLoggedIn}
               showToast={showToast}
             />
@@ -167,8 +177,8 @@ export default function HomeScreen() {
           <View style={styles.modeRow}>
             <Text style={styles.label}>Normal Mode</Text>
             <ProtectedSwitch
-              value={autoMode}
-              onToggle={() => setAutoMode(!autoMode)}
+              value={modeState}
+              onToggle={handleModeSate}
               isLoggedIn={isLoggedIn}
               showToast={showToast}
             />
