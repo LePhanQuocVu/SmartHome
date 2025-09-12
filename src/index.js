@@ -8,10 +8,10 @@ import http from 'http'
 import { Server as IOServer } from 'socket.io';
 import {connectDB}  from './config/db.js'
 import userRouter from './router/userRoute.js';
-
 import { connectMQTT } from './mqttBroker/mqtt.js';
 import { initSocket } from './services/socket.js';
 import { Socket } from 'net';
+import { verifyToken } from './middleware/auth.js';
 
 /**Start App */
 const app = express()
@@ -28,13 +28,12 @@ connectMQTT();
 connectDB();
 
 /**Middelware */
-app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 /**User Route */
-app.use('/api/users', userRouter);
+app.use('/api/users', verifyToken, userRouter);
 
 // done
 server.listen(process.env.PORT, () => {

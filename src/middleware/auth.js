@@ -1,4 +1,3 @@
-import { json } from "body-parser";
 import jwt from "jsonwebtoken";
 
 export const verifyToken  = (req, res, next) => {
