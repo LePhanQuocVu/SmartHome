@@ -25,7 +25,6 @@ export default  class userController {
         const {phone, password} = req.body;
         const existUser = await User.findOne({phone});
         if (!existUser) return res.status(404).json({ message: "User not found" });
-        console.log("Usser login: ", existUser);
         const isMatch = await bcrypt.compare(password, existUser.password);
         if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
         const token = jwt.sign(
@@ -43,41 +42,48 @@ export default  class userController {
           res.status(500).json({msg: err.message});
     }
  }
- updateLedState =  async(req,res) => {
-     try {
-         const userId = req.params.userId;
-        const { ledState} = req.body;
-        // 1. Kiểm tra user tồn tại
-        const user = await User.findOne({ userId });
-        if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-        }
+updateLedState = async (req, res) => {
+  try {
+    const { userId } = req.params;   //  Lấy đúng giá trị userId
+    const { ledState } = req.body;
 
-        // 2. Cập nhật ledState
-        user.ledState = ledState;
-        await user.save(); // sẽ tự động cập nhật updatedAt nếu dùng timestamps
-
-        res.json({ message: 'LED state updated', user });
-  } catch (err) {
-        res.status(500).json({ error: err.message });
-  }
- }
-updateFanState =  async  (req,res) =>{
-    try{
-        const userId = req.params.userId;
-        const { fanState} = req.body;
-        const user = await User.findOne({userId});
-        if(!user) {
-            return res.status(404).json({msg: "User not found"});
-        }
-        // update
-        user.fanState = fanState;
-        await user.save();
-        res.json({msg: 'FAN state updated', user});
-    } catch(err) {
-        res.status(500).json({error: err.message});
+    // 1. Kiểm tra user tồn tại
+    const user = await User.findOne({ userId: userId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
- }
+
+    // 2. Cập nhật ledState
+    user.ledState = ledState;
+    await user.save(); // sẽ tự động cập nhật updatedAt nếu dùng timestamps
+
+    res.json({ message: "LED state updated", user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+updateFanState = async (req, res) => {
+  try {
+    const { userId } = req.params;   //  Lấy đúng giá trị userId
+    const { ledState } = req.body;
+
+    // 1. Kiểm tra user tồn tại
+    const user = await User.findOne({ userId: userId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // 2. Cập nhật ledState
+    user.fanState = fanState;
+    await user.save(); // sẽ tự động cập nhật updatedAt nếu dùng timestamps
+
+    res.json({ message: "Fan state updated", user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
  updateGasState = async (req,res) => {
     try{
         const userId = req.params.userId;
@@ -96,7 +102,7 @@ updateFanState =  async  (req,res) =>{
  }
  deleteUserById =  async(req,res) => {
     try {
-        const userId = req.params.userId;
+        const userId = req.params;
          // 1. Tìm và xóa user
          const deletedUser = await User.findOneAndDelete({ userId });
          if (!deletedUser) {
