@@ -1,14 +1,15 @@
 import mongoose from "mongoose";
 import express from "express";
 import userController from "../controllers/userControllers.js";
+import { verifyToken } from "../middleware/auth.js";
 const userRouter = express.Router()
 const controller = new userController(); // tạo instance
 
-userRouter.post('/userRegister',(req,res) => controller.newUser(req,res));
-userRouter.post('/userLogin',(req,res) => controller.userLogin(req,res));
-userRouter.put('/updateLedState/:userId',(req,res) => controller.updateLedState(req,res));
-userRouter.put('/updateFanState/:userId',(req,res) => controller.updateFanState(req,res));
-userRouter.put('/updateGasState/:userId',(req,res) => controller.updateGasState(req,res));
-userRouter.delete('/deleteUser/:userId', (req,res) => controller.deleteUserById(req,res));
+userRouter.post('/userRegister',controller.newUser);
+userRouter.post('/userLogin',controller.userLogin);
+userRouter.put('/updateLedState/:userId', verifyToken,controller.updateLedState);
+userRouter.put('/updateFanState/:userId',controller.updateFanState);
+userRouter.put('/updateGasState/:userId', controller.updateGasState);
+userRouter.delete('/deleteUser/:userId', controller.deleteUserById);
 
 export default userRouter;
