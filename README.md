@@ -1,15 +1,44 @@
 ### ABOUT PROJECT
-  This is a IOT SMART HOME Project
+  This is a IOT SMART HOME Project is built with fully RTOS.
 
-### Hardware
 
+## CLONE PROJECT
+``` bash 
+   git clone  https://github.com/LePhanQuocVu/SmartHome.git
+```
+### Firmware:
+  ``` bash 
+   git checkout Firmware
+```
+
+### Back_end:
+  ``` bash 
+    git checkout Back_end
+```
+### Front_end:
+  ``` bash 
+  git checkout Front_end
+  
+```
+### Hardware use
   - ESP32 Wemos D1 R32
   - DHT11
   - OLED 
-
+  - Servo 180
+  - Light Sensor
+  - RFID 
+  - Gas Sensor
 ### SOFTWARE
-PlatformIO is used which is compatible with ESP32.
+  PlatformIO is used which is compatible with ESP32.
+  Visual Studio is used to develop Back_end and Front_End
+## Documentation
 
+- [ExpressJS](https://expressjs.com/)  
+- [Mongoose (MongoDB)](https://mongoosejs.com/)  
+
+
+### Technology
+FreeRTOS: https://www.freertos.org/Documentation/00-Overview
 
 ### Library
 Document about Oled:  https://www.facebook.com/groups/2599674412.
@@ -20,5 +49,5 @@ Board đa chức năng mở rộng DHT11 LM35 Buzzer IR Photoresistor VR RGB But
 
 MQTT connect to hiveMQ Broker : https://registry.platformio.org/libraries/knolleary/PubSubClient/installation
 
-### Technology
-FreeRTOS: https://www.freertos.org/Documentation/00-Overview
+### Contribute
+Wellcome
