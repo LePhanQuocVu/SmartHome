@@ -1,6 +1,8 @@
 import mqtt from 'mqtt';
 import fs from 'fs';
 import { sendRealtimeToUser, broadcast } from '../services/socket.js';
+
+let client;
 export const connectMQTT = () => {
   const options = {
     host: process.env.MQTT_HOST, //  hostname từ HiveMQ
@@ -11,16 +13,31 @@ export const connectMQTT = () => {
     // Nếu HiveMQ yêu cầu CA certificate:
     ca: [fs.readFileSync('./ca.pem')],
   };
-  const client = mqtt.connect(options);
+   client = mqtt.connect(options);
 
   client.on("connect", () => {
     console.log("Connected to HiveMQ Cloud via MQTTS");
     // Subscribe topic
-    client.subscribe("iot/test", (err) => {
+    // client.subscribe("iot/test", (err) => {
+    //   if (!err) {
+    //     console.log("Subscribed to topic: iot/test");
+    //     // Publish thử
+    //     client.publish("iot/test", "Hello from NodeJS");
+    //   }
+    // });
+    client.subscribe("iot_home/led_state", (err) => {
       if (!err) {
-        console.log("Subscribed to topic: iot/test");
-        // Publish thử
-        client.publish("iot/test", "Hello from NodeJS");
+        console.log("Subscribed to topic: iot_home/led_state");
+      }
+    });
+    client.subscribe("iot_home/fan_state", (err) => {
+      if (!err) {
+        console.log("Subscribed to topic: iot_home/fan_state");
+      }
+    });
+    client.subscribe("iot_home/connectMode", (err) => {
+      if (!err) {
+        console.log("Subscribed to topic: iot_home/fan_state");
       }
     });
   });
@@ -28,10 +45,24 @@ export const connectMQTT = () => {
   client.on("message", (topic, message) => {
     console.log(`Received: ${message.toString()} on topic ${topic}`);
     // send to mobile app
-    
   });
 
   client.on("error", (err) => {
     console.error("Connection error:", err);
   });
 }
+
+// Hàm publish topic + message
+export const publishToMqtt = (topic, message) => {
+  if (!client || !client.connected) {
+    console.error(" MQTT client not connected");
+    return;
+  }
+  client.publish(topic, message, { qos: 2 }, (err) => {
+    if (err) {
+      console.error(" Publish error:", err);
+    } else {
+      console.log(`Published to ${topic}: ${message}`);
+    }
+  });
+};
